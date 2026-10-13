@@ -1,0 +1,11 @@
+package app.loveu;
+import java.time.*;import java.util.*;
+public class PeriodForecastTest {
+ static PeriodAnalysis.Entry e(String start,String end){return new PeriodAnalysis.Entry(start,end);}static void check(boolean value,String label){if(!value)throw new AssertionError(label);}
+ public static void main(String[] args){LocalDate today=LocalDate.of(2026,3,10);List<PeriodAnalysis.Entry> rows=Arrays.asList(e("2026-01-01","2026-01-05"),e("2026-01-29","2026-02-02"),e("2026-03-01","2026-03-05"));PeriodForecast.Result r=PeriodForecast.analyze(rows,today);
+  check(r.records==3&&r.completed==3&&r.averageLength==5&&r.medianCycle==29.5,"descriptive totals");check(r.expected.equals(LocalDate.of(2026,3,31))&&r.earliest.equals(LocalDate.of(2026,3,29))&&r.latestExpected.equals(LocalDate.of(2026,4,1)),"median and observed interval bounds");check(r.countdown(today).equals("预计还有 21 天"),"future countdown");check(r.countdown(r.expected).equals("预计今天开始"),"today");check(r.countdown(r.expected.plusDays(8)).equals("已超过预计日期 8 天"),"past date not rolled to a fictitious new cycle");
+  check(PeriodForecast.analyze(rows.subList(0,2),today).expected==null,"insufficient history not defaulted to 28");List<PeriodAnalysis.Entry> bad=new ArrayList<>(rows);bad.add(e("bad",null));bad.add(e("2026-03-20",null));bad.add(e("2026-01-01",null));bad.add(e("2026-01-03","2026-01-09"));check(PeriodForecast.analyze(bad,today).excluded==4,"invalid future duplicate overlap excluded, source retained");check(bad.size()==7,"never delete originals");
+  List<PeriodAnalysis.Entry> longHistory=new ArrayList<>();LocalDate start=LocalDate.of(2017,1,1);for(int i=0;i<100;i++){longHistory.add(e(start.toString(),start.plusDays(4).toString()));start=start.plusDays(i<93?31:28);}r=PeriodForecast.analyze(longHistory,LocalDate.of(2026,10,13));check(r.records==100&&r.samples==6&&r.medianCycle==28,"long-term history retained with recent prediction window");
+  List<PeriodAnalysis.Entry> ongoing=new ArrayList<>(rows);ongoing.set(2,e("2026-03-01",null));r=PeriodForecast.analyze(ongoing,today);check(r.completed==2&&r.ongoing.equals(LocalDate.of(2026,3,1))&&r.averageLength==5,"ongoing excluded from completed length");System.out.println("PeriodForecastTest PASS history retention, calendar math, sparse/ongoing/invalid cases, recent-six prediction and honest countdown");
+ }
+}

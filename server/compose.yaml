@@ -1,0 +1,15 @@
+services:
+  relay:
+    build: .
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 64
+    ports: ["127.0.0.1:8878:8878"]
+    volumes: ["relay-data:/data"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=8m"]
+volumes:
+  relay-data:

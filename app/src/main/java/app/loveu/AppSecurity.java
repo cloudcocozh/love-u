@@ -1,0 +1,11 @@
+package app.loveu;
+import android.content.Context;import org.json.JSONObject;import android.util.Base64;import java.security.*;import javax.crypto.*;import javax.crypto.spec.*;
+public final class AppSecurity {
+ private static final int ROUNDS=210000;
+ private static byte[] hash(String pin,byte[] salt,int rounds)throws Exception{PBEKeySpec p=new PBEKeySpec(pin.toCharArray(),salt,rounds,256);try{return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(p).getEncoded();}finally{p.clearPassword();}}
+ public static boolean hasPin(Context c)throws Exception{synchronized(Vault.class){return new Vault(c).read().getJSONObject("settings").has("pinHash");}}
+ public static void setPin(Context c,String pin)throws Exception{if(pin==null||!pin.matches("[0-9]{6,64}"))throw new IllegalArgumentException("PIN 必须为 6–64 位数字");synchronized(Vault.class){Vault v=new Vault(c);JSONObject root=v.read(),s=root.getJSONObject("settings");byte[] salt=new byte[16];new SecureRandom().nextBytes(salt);s.put("pinSalt",Base64.encodeToString(salt,Base64.NO_WRAP)).put("pinHash",Base64.encodeToString(hash(pin,salt,ROUNDS),Base64.NO_WRAP)).put("pinRounds",ROUNDS).put("pinFailures",0).put("pinBlockedUntil",0);v.write(root);}}
+ public static boolean verifyPin(Context c,String pin)throws Exception{synchronized(Vault.class){Vault v=new Vault(c);JSONObject root=v.read(),s=root.getJSONObject("settings");if(!s.has("pinHash"))return true;long now=System.currentTimeMillis();if(now<s.optLong("pinBlockedUntil"))return false;int rounds=s.getInt("pinRounds");if(rounds<100000||rounds>1000000)throw new IllegalArgumentException("Invalid PIN settings");boolean ok=pin!=null&&pin.length()<=64&&MessageDigest.isEqual(hash(pin,Base64.decode(s.getString("pinSalt"),Base64.DEFAULT),rounds),Base64.decode(s.getString("pinHash"),Base64.DEFAULT));int failures=ok?0:s.optInt("pinFailures")+1;s.put("pinFailures",failures).put("pinBlockedUntil",ok?0:failures>=5?now+Math.min(3600000L,30000L*(1L<<Math.min(7,failures-5))):0);v.write(root);return ok;}}
+ /** Call only after an authenticated UI unlock. */
+ public static void clearPin(Context c)throws Exception{synchronized(Vault.class){Vault v=new Vault(c);JSONObject root=v.read(),s=root.getJSONObject("settings");for(String k:new String[]{"pinHash","pinSalt","pinRounds","pinFailures","pinBlockedUntil"})s.remove(k);v.write(root);}}
+}

@@ -1,0 +1,30 @@
+plugins { id 'com.android.application' }
+
+def localSettings = new Properties()
+def localFile = rootProject.file('local.properties')
+if (localFile.exists()) localFile.withInputStream { localSettings.load(it) }
+def relayUrl = localSettings.getProperty('loveu.relayUrl', 'https://relay.example.invalid/love-u')
+def relayUri = new URI(relayUrl)
+if (relayUri.scheme != 'https' || !relayUri.host || relayUri.userInfo || relayUri.query || relayUri.fragment) {
+    throw new GradleException('loveu.relayUrl must be an HTTPS URL without credentials, query or fragment')
+}
+android {
+ namespace 'app.loveu'
+ compileSdk 35
+ defaultConfig {
+  applicationId 'app.loveu.privatejournal'
+  minSdk 26
+  targetSdk 35
+  versionCode 21
+  versionName '1.9.0'
+  buildConfigField 'String', 'RELAY_BASE_URL', groovy.json.JsonOutput.toJson(relayUrl)
+ }
+ buildFeatures { buildConfig true }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+ // Release signing keys stay outside Git. Sign the unsigned release with your own protected key.
+ buildTypes { release { minifyEnabled false } }
+}
+dependencies {
+ implementation files('libs/webrtc-150.7871.01.aar')
+ implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+}

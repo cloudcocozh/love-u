@@ -1,0 +1,1 @@
+Fonts from https://github.com/google/fonts/tree/main/ofl/dmsans and https://github.com/google/fonts/tree/main/ofl/notosanssc . Included OFL licenses. LoveU UI SC is a renamed glyph subset of Noto Sans SC for bundled interface text; other text uses Android fallback. Classic UI uses its original system font. No user data used in glyph selection.

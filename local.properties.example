@@ -1,0 +1,4 @@
+# Copy to local.properties (ignored by Git). Use forward slashes for Windows paths.
+# sdk.dir=C:/Android/Sdk
+# Optional: set your own HTTPS relay to enable couple features.
+loveu.relayUrl=https://relay.example.com/love-u
