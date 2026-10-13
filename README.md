@@ -24,7 +24,7 @@
 
 ## 使用与安装
 
-**[下载 Android 安装包](https://github.com/cloudcocozh/love-u/releases/latest)**（私有仓库，需要获授权的 GitHub 账号）。
+**[下载 Android 安装包](https://github.com/cloudcocozh/love-u/releases/latest)**（公开下载，无需登录 GitHub）。
 
 源码树不包含 APK、签名私钥或任何个人记录；已签名 APK 单独放在版本下载页。新安装从空白记录开始。版本页的原签名分发包使用现有私人 NAS 中转，通用源码构建则需要配置自己的中转地址。
 

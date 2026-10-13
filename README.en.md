@@ -24,7 +24,7 @@ Choose a language under **Me → Language**. Personal notes, messages, addresses
 
 ## Install and use
 
-**[Download the Android APK](https://github.com/cloudcocozh/love-u/releases/latest)** (private repository; authorized GitHub account required).
+**[Download the Android APK](https://github.com/cloudcocozh/love-u/releases/latest)** (public download; no GitHub sign-in required).
 
 The source tree contains no APKs, release private keys or personal records. Signed APKs are available separately on the release page. New installations start empty. The original signed distribution uses the existing private NAS relay; portable source builds require your own relay configuration.
 
